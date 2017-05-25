@@ -1,0 +1,199 @@
+@font-face {
+    
+    font-family: 'Eraser';
+    
+    src: url('fonts/EraserRegular.ttf');
+    
+}
+
+.root{
+    
+    -fx-background-image: url('images/chalkboard.jpg');
+    
+    -fx-background-repeat: stretch; 
+    
+    -fx-background-size: 100% 100%;
+    
+}
+
+.textfield{
+    
+    -fx-padding: 20px;
+    
+    -fx-background-color: transparent;
+    
+    -fx-font-family: 'Eraser';
+
+    -fx-text-fill: white;
+    
+    -fx-font-size: 2em;
+    
+    -fx-border-color: white;
+    
+}
+
+.studentPicked{
+    
+    -fx-padding: 20px;
+    
+    -fx-background-color: transparent;
+    
+    -fx-font-family: 'Eraser';
+
+    -fx-text-fill: white;
+    
+    -fx-font-size: 5em;
+    
+    -fx-border-color: white;
+    
+}
+
+.popup{
+    
+    -fx-text-align: center;
+    
+    -fx-border-size: 2em;
+    
+    -fx-border-radius: 2em;
+    
+    -fx-border-style: solid;
+    
+    -fx-border-color: white;
+    
+    -fx-background-color: transparent;
+    
+    -fx-text-fill: white;
+    
+    -fx-font-family: 'Eraser';
+    
+    -fx-font-size: 2em;
+    
+    -fx-padding: 25px;
+    
+}
+
+.button{
+    
+    -fx-padding: 30px;
+    
+    -fx-background-color: transparent;
+    
+    -fx-font-family: 'Eraser';
+
+    -fx-text-fill: white;
+    
+    -fx-font-size: 2em;
+    
+    -fx-border-color: white;
+    
+}
+
+.pick_button{
+    
+    -fx-padding: 25px;
+    
+    -fx-background-color: transparent;
+    
+    -fx-font-family: 'Eraser';
+
+    -fx-text-fill: white;
+    
+    -fx-font-size: 6em;
+    
+    -fx-border-color: white;
+    
+    -fx-border-radius: 2em;
+    
+    -fx-border-width: 1em;
+    
+    -fx-effect: dropshadow(one-pass-box , black, 3, 5, 4, 4);
+    
+}
+
+.pick_button:hover{
+    
+    -fx-effect: dropshadow(one-pass-box , red, 2, 2, 1, 1);
+    
+}
+
+.title{
+    
+    -fx-font-family: 'Eraser';
+
+    -fx-text-fill: white;
+    
+    -fx-font-size: 6em;
+    
+    -fx-font-style: italic;
+    
+    -fx-effect: dropshadow( one-pass-box , black , 3,1,-2,-2 );
+
+}
+
+.menuBtn{
+    
+    -fx-font-family: 'Eraser';
+
+    -fx-text-fill: white;
+    
+    -fx-font-size: 4em;
+    
+    -fx-effect: dropshadow(one-pass-box , black , 2, 1, -1, -1);
+
+}
+    
+.menuBtn:hover{
+    
+    -fx-effect: dropshadow(one-pass-box , gold, 2, 1, -1, -1);
+    
+}
+
+.gradeBtn{
+    
+    -fx-effect: dropshadow(one-pass-box , black, 3, 5, 4, 4);
+    
+}
+
+.gradeBtn:hover{
+    
+    -fx-effect: dropshadow(one-pass-box , gold, 2, 4, 3, 3);
+    
+}
+
+.loadClassOption{
+    
+    -fx-font-family: 'Eraser';
+
+    -fx-text-fill: white;
+    
+    -fx-font-size: 3em;
+    
+    -fx-effect: dropshadow(one-pass-box , black , 2, 1, -1, -1);
+    
+}
+
+.loadClassOption:hover{
+    
+    -fx-effect: dropshadow(one-pass-box , gold, 2, 1, -1, -1);
+    
+}
+
+.scrollpane > .viewport{
+    
+    -fx-background-color: transparent;
+        
+}
+
+.scrollpane{
+    
+    -fx-background-color: transparent;
+    
+    -fx-border-color: white;
+    
+    -fx-border-radius: 2em;
+    
+    -fx-border-width: 1em;
+    
+    -fx-width: auto;
+    
+}
