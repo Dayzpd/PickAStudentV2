@@ -6,8 +6,10 @@ import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
+import javafx.scene.control.RadioButton;
 import javafx.scene.control.ScrollPane;
 import javafx.scene.control.TextField;
+import javafx.scene.control.ToggleGroup;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.BorderPane;
@@ -31,7 +33,7 @@ public class UserInterface {
     
     private TextField courseName, studentName;
     
-    private Button tally, back, next, done, addStudent, pickStudent;
+    private Button tally, back, next, done, addStudent, pickStudent, load;
     
     private HBox logoBox, popupBox;
     
@@ -56,8 +58,6 @@ public class UserInterface {
     //--------------------------------------------------------------------------
     
     public UserInterface(BorderPane root, Stage primaryStage){
-        
-        //font = Font.font(loadFont());
         
         this.root = root;
         
@@ -98,6 +98,9 @@ public class UserInterface {
         
         back = new Button("Back");
         back.getStyleClass().add("button");
+        
+        load = new Button("Load");
+        load.getStyleClass().add("button");
         
         next = new Button("Next");
         next.getStyleClass().add("button");
@@ -209,33 +212,51 @@ public class UserInterface {
     //Load in a previous save
     public void loadCourse(){
     
+        ToggleGroup group = new ToggleGroup();
+        
         File folder = new File("saves");
         
         File[] listOfFiles = folder.listFiles();      
         
         ArrayList fileLabels = new ArrayList();
         
+        ArrayList radioBtns = new ArrayList();
+        
         VBox viewFileLabels = new VBox(20);
         viewFileLabels.getChildren().add(loadCourseTitle);
         
         Label label;
         
+        RadioButton radBtn;
+        
+        HBox hbox, btns;
+        
         for(int x = 0;x < listOfFiles.length;x++){
             
-            System.out.println(listOfFiles[x]);
-        
-            label = new Label(listOfFiles[x].toString());
+            radBtn = new RadioButton();
+            radBtn.setToggleGroup(group);
+            radioBtns.add(radBtn);
+            
+            label = new Label(listOfFiles[x].toString().replace("saves\\", ""));
             label.getStyleClass().add("loadClassOption");
             
             fileLabels.add(label);
             
-            viewFileLabels.getChildren().add((Label)fileLabels.get(x));
+            hbox = new HBox(30);
+            hbox.getChildren().addAll(radBtn, label);
+            
+            viewFileLabels.getChildren().add(hbox);
             
         }   
         
         loadCourseContent.setContent(viewFileLabels);
         
-        root.setLeft(back);
+        btns = new HBox(30);
+        btns.getChildren().addAll(back, load);
+        btns.setAlignment(Pos.CENTER);
+        btns.setPadding(new Insets(0,0,45,0));
+        
+        root.setBottom(btns);
         
         root.setCenter(loadCourseContent);
             
@@ -244,9 +265,20 @@ public class UserInterface {
 
             root.setCenter(null);
             
-            root.setLeft(null);
+            root.setBottom(null);
             
             introScreen();
+
+        });
+        
+        //load: Loads the selected course
+        load.setOnMouseClicked((event) -> {
+
+            root.setCenter(null);
+            
+            root.setBottom(null);
+            
+            //load selected file
 
         });
         
