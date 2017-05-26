@@ -2,6 +2,7 @@
 import java.io.File;
 import java.net.URL;
 import java.util.ArrayList;
+import java.util.concurrent.TimeUnit;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.control.Button;
@@ -19,6 +20,7 @@ import javafx.scene.media.Media;
 import javafx.scene.media.MediaPlayer;
 import javafx.stage.Stage;
 import javafx.stage.WindowEvent;
+import javafx.scene.layout.GridPane;
 
 
 public class UserInterface {
@@ -29,7 +31,7 @@ public class UserInterface {
     
     private Course course;
     
-    private Label popupText, studentPicked, title, createCourseBtn, loadCourseBtn, settingsBtn, exitBtn, loadCourseTitle;
+    private Label popupText, studentPicked, title, createCourseBtn, loadCourseBtn, settingsBtn, exitBtn, loadCourseTitle, tallyTitle;
     
     private TextField courseName, studentName;
     
@@ -41,15 +43,21 @@ public class UserInterface {
 
     private SoundPlayer soundPlayer;
     
-    private final URL onHoverSound, styleURL;
+    private final URL nextSound, absentSound, correctSound, incorrectSound, styleURL;
     
-    private final Media onHoverMedia;
+    private final Media nextMedia, absentMedia, correctMedia, incorrectMedia;
     
-    private MediaPlayer playOnHoverSound;
+    private MediaPlayer playNextSound, playAbsentSound, playCorrectSound, playIncorrectSound;
     
-    private String css;
+    private final String css;
     
-    private ScrollPane loadCourseContent;
+    private ScrollPane loadCourseContent, tallyContent;
+    
+    private GridPane grid;
+    
+    ArrayList<String> fileLabels;
+    
+    ArrayList<RadioButton> radioBtns;
     
     Thread thread;
     
@@ -63,6 +71,8 @@ public class UserInterface {
         
         this.stage = primaryStage;
         
+        stage.getIcons().add(new Image("/resources/images/icon.png"));
+        
         styleURL = this.getClass().getResource("/resources/style.css");
         css = styleURL.toExternalForm(); 
         root.getStylesheets().add(css);
@@ -70,7 +80,7 @@ public class UserInterface {
         studentPicked = new Label("             ");
         studentPicked.getStyleClass().add("studentPicked");
         
-        title = new Label("Pick a Student v2.0");
+        title = new Label("Pick a Student");
         title.getStyleClass().add("title");
         
         createCourseBtn = new Label("Create Course");
@@ -92,6 +102,12 @@ public class UserInterface {
         studentName = new TextField("Student Name");
         studentName.setMaxWidth(400);
         studentName.getStyleClass().add("textfield");
+        
+        loadCourseTitle = new Label("Load Course");
+        loadCourseTitle.getStyleClass().add("title");
+        
+        tallyTitle = new Label("Tally");
+        tallyTitle.getStyleClass().add("title");
         
         tally = new Button("Tally");
         tally.getStyleClass().add("button");
@@ -138,9 +154,21 @@ public class UserInterface {
         correct.setFitHeight(120.0);
         correct.setFitWidth(120.0);
         
-        onHoverSound = getClass().getResource("/resources/sounds/on_hover_pop.wav");
-        onHoverMedia = new Media(onHoverSound.toString());
-        playOnHoverSound = new MediaPlayer(onHoverMedia);
+        nextSound = getClass().getResource("/resources/sounds/next.mp3");
+        nextMedia = new Media(nextSound.toString());
+        playNextSound = new MediaPlayer(nextMedia);
+        
+        absentSound = getClass().getResource("/resources/sounds/Silly_Snoring.wav");
+        absentMedia = new Media(absentSound.toString());
+        playAbsentSound = new MediaPlayer(absentMedia);
+        
+        incorrectSound = getClass().getResource("/resources/sounds/Aww.wav");
+        incorrectMedia = new Media(incorrectSound.toString());
+        playIncorrectSound = new MediaPlayer(incorrectMedia);
+        
+        correctSound = getClass().getResource("/resources/sounds/Applause.mp3");
+        correctMedia = new Media(correctSound.toString());
+        playCorrectSound = new MediaPlayer(correctMedia);
         
         popupText = new Label("Reshuffling List");
         popupText.getStyleClass().add("popup");
@@ -149,13 +177,15 @@ public class UserInterface {
         popupBox.setAlignment(Pos.CENTER);
         popupBox.setPadding(new Insets(10, 10, 10, 10));
         
-        loadCourseTitle = new Label("Load Course");
-        loadCourseTitle.getStyleClass().add("title");
-        
         loadCourseContent = new ScrollPane();
         loadCourseContent.getStyleClass().add("scrollpane");
         loadCourseContent.setMaxWidth(1100);
         loadCourseContent.setMaxHeight(650);
+        
+        tallyContent = new ScrollPane();
+        tallyContent.getStyleClass().add("scrollpane");
+        tallyContent.setMaxWidth(1100);
+        tallyContent.setMaxHeight(650);
         
         soundPlayer = new SoundPlayer();
         
@@ -175,7 +205,8 @@ public class UserInterface {
     public void introScreen(){
         
         VBox launchScreenButtons = new VBox(50);
-        launchScreenButtons.getChildren().addAll(title, createCourseBtn, loadCourseBtn, settingsBtn, exitBtn);
+        //Add settingsBtn after Conference.
+        launchScreenButtons.getChildren().addAll(title, createCourseBtn, loadCourseBtn, exitBtn);
         launchScreenButtons.setAlignment(Pos.CENTER);
         
         root.setCenter(launchScreenButtons);
@@ -195,6 +226,13 @@ public class UserInterface {
             root.setCenter(null);
                     
             loadCourse();
+                
+        });
+        
+        //exitBtn: Remove gold shadow on exit
+        exitBtn.setOnMouseClicked((event) -> {
+                
+            System.exit(0);
                 
         });
                      
@@ -218,9 +256,9 @@ public class UserInterface {
         
         File[] listOfFiles = folder.listFiles();      
         
-        ArrayList fileLabels = new ArrayList();
+        fileLabels = new ArrayList();
         
-        ArrayList radioBtns = new ArrayList();
+        radioBtns = new ArrayList<>();
         
         VBox viewFileLabels = new VBox(20);
         viewFileLabels.getChildren().add(loadCourseTitle);
@@ -233,19 +271,23 @@ public class UserInterface {
         
         for(int x = 0;x < listOfFiles.length;x++){
             
-            radBtn = new RadioButton();
-            radBtn.setToggleGroup(group);
-            radioBtns.add(radBtn);
+            if(listOfFiles[x].toString().contains(".dat")){
             
-            label = new Label(listOfFiles[x].toString().replace("saves\\", ""));
-            label.getStyleClass().add("loadClassOption");
+                fileLabels.add(listOfFiles[x].toString());
+                
+                radBtn = new RadioButton();
+                radBtn.setToggleGroup(group);
+                radioBtns.add(radBtn);
             
-            fileLabels.add(label);
+                label = new Label(listOfFiles[x].toString().replace("saves\\", "").replace(".dat", ""));
+                label.getStyleClass().add("tallyInfo");
             
-            hbox = new HBox(30);
-            hbox.getChildren().addAll(radBtn, label);
-            
-            viewFileLabels.getChildren().add(hbox);
+                hbox = new HBox(30);
+                hbox.getChildren().addAll(radBtn, label);
+
+                viewFileLabels.getChildren().add(hbox);
+                
+            }
             
         }   
         
@@ -274,14 +316,69 @@ public class UserInterface {
         //load: Loads the selected course
         load.setOnMouseClicked((event) -> {
 
+            String filePath = getSelectedFile(getSelectedRadBtn());
+            
+            course = new Course();
+            
+            course = (Course)course.loadCourse(filePath);
+            
             root.setCenter(null);
             
             root.setBottom(null);
             
-            //load selected file
+            startGame();
 
         });
         
+    }
+    
+    //--------------------------------------------------------------------------
+    
+    //getSelectedRadBtn - returns the index of the selected load file
+    public int getSelectedRadBtn(){
+    
+        int index = -1;
+        
+        for(int x = 0;x < radioBtns.size();x++){
+        
+            if((radioBtns.get(x)).isSelected()){
+            
+                index = x;
+                
+                System.out.println("index: " + index);
+                
+                break;
+                
+            }
+        
+        }
+        
+        return index;
+    
+    }
+    
+    //--------------------------------------------------------------------------
+    
+    //getSelectedRadBtn - given the index of the selected radio button, the 
+    //method will return the relative file path as a string.
+    public String getSelectedFile(int index){
+    
+        String fileName;
+        
+        if(index != -1){
+        
+            fileName = fileLabels.get(index);
+            
+        }else{
+        
+            fileName = null;
+            
+        }
+        
+        System.out.println(fileName);
+        
+        return fileName;
+                    
     }
     
     //--------------------------------------------------------------------------
@@ -403,19 +500,15 @@ public class UserInterface {
         //pickStudent: Pick a new student
         pickStudent.setOnMouseClicked((event) -> {
             
-            root.setTop(null);
-
             if(course.getQuestionQueue().size() <= 0){
             
                 course.refillList();
-                
-                root.setTop(popupBox);
-                
-                System.out.println("Woot");
-                
+                                                
             }
             
             studentPicked.setText(course.pickAStudent());
+            
+            playSoundEffect(playNextSound);
 
         });
         
@@ -443,6 +536,8 @@ public class UserInterface {
             
             course.saveCourse(course);
             
+            course.downloadTally();
+            
             root.setCenter(null);
             
             root.setLeft(null);
@@ -458,12 +553,16 @@ public class UserInterface {
             
             course.updateTally(studentPicked.getText(), 0);
             
+            playSoundEffect(playCorrectSound);
+            
         });
         
         //incorrect: Increment current student's incorrect tally
         incorrect.setOnMouseClicked((event) -> {
             
             course.updateTally(studentPicked.getText(), 1);
+            
+            playSoundEffect(playIncorrectSound);
             
         });
         
@@ -472,12 +571,18 @@ public class UserInterface {
             
             course.updateTally(studentPicked.getText(), 2);
             
+            playSoundEffect(playAbsentSound);
+            
         });
         
         //tally: Show tally page
         tally.setOnMouseClicked((event) -> {
             
+            root.setLeft(null);
+            
             root.setCenter(null);
+            
+            root.setRight(null);
             
             tallyPage();
             
@@ -489,8 +594,105 @@ public class UserInterface {
     
     public void tallyPage(){
     
+        grid = new GridPane();
+        grid.setHgap(25);
+        grid.setVgap(25);
+        grid.getStyleClass().add("gridpane");
+        grid.add(tallyTitle, 0, 0);
         
+        HBox studentInfo, btns;
+        
+        Label name, correctScore, incorrectScore, absentScore;
+        
+        name = new Label("Name");
+        name.getStyleClass().add("tallyInfo");
+        correctScore = new Label("Correct");
+        correctScore.getStyleClass().add("tallyInfo");
+        incorrectScore = new Label("Incorrect");
+        incorrectScore.getStyleClass().add("tallyInfo");
+        absentScore = new Label("Absent");
+        absentScore.getStyleClass().add("tallyInfo");
+        
+        grid.add(name, 0, 1);
+        grid.add(correctScore, 1, 1);
+        grid.add(incorrectScore, 2, 1);
+        grid.add(absentScore, 3, 1);
+        
+        
+        
+        for(int x = 0;x < course.getStudents().size();x++){
+        
+            name = new Label(course.getStudents().get(x).toString());
+            name.getStyleClass().add("tallyInfo");
+            
+            correctScore = new Label(Integer.toString(course.getTally()[x][0]));
+            correctScore.getStyleClass().add("tallyInfo");
+            
+            incorrectScore = new Label(Integer.toString(course.getTally()[x][1]));
+            incorrectScore.getStyleClass().add("tallyInfo");
+            
+            absentScore = new Label(Integer.toString(course.getTally()[x][2]));
+            absentScore.getStyleClass().add("tallyInfo");
+            
+            grid.add(name, 0, x + 2);
+            grid.add(correctScore, 1, x + 2);
+            grid.add(incorrectScore, 2, x + 2);
+            grid.add(absentScore, 3, x + 2);
+            
+        }
+        
+        tallyContent.setContent(grid);
+        
+        root.setCenter(tallyContent);
+        
+        btns = new HBox(30);
+        btns.getChildren().addAll(back);
+        btns.setAlignment(Pos.CENTER);
+        btns.setPadding(new Insets(0,0,45,0));
+        
+        root.setBottom(btns);
+        
+        //back: Return to the game
+        back.setOnMouseClicked((event) -> {
+            
+            course.saveCourse(course);
+            
+            root.setCenter(null);
+            
+            root.setBottom(null);
+            
+            grid = null;
+            
+            startGame();
+            
+        });
+        
+    }
     
+    //--------------------------------------------------------------------------
+    
+    public void playSoundEffect(MediaPlayer sound){
+    
+        thread = new Thread(() -> {
+            try{
+                
+                sound.play();
+                
+                TimeUnit.SECONDS.sleep(2);
+                
+                sound.stop();
+                
+            }catch(Throwable ex){
+                
+                System.err.println("An error occured whilst playing the audio file.");
+                
+            }
+            
+        });
+        
+        thread.start();
+        
+                
     }
     
     //--------------------------------------------------------------------------
