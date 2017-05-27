@@ -74,7 +74,7 @@
 
 .button{
     
-    -fx-padding: 30px;
+    -fx-padding: 15px;
     
     -fx-background-color: transparent;
     
@@ -82,9 +82,21 @@
 
     -fx-text-fill: white;
     
-    -fx-font-size: 2em;
+    -fx-font-size: 3em;
     
     -fx-border-color: white;
+    
+    -fx-border-width: 1em;
+    
+    -fx-border-radius: 10px;
+    
+    -fx-effect: dropshadow(one-pass-box , black, 2, 2, 2, 2);
+    
+}
+
+.button:hover{
+    
+    -fx-effect: dropshadow(one-pass-box , yellow, 2, 2, 2, 2);
     
 }
 
@@ -190,10 +202,40 @@
     
     -fx-border-color: white;
     
-    -fx-border-radius: 2em;
-    
     -fx-border-width: 1em;
     
-    -fx-width: auto;
+    -fx-padding: 30px;
+    
+}
+
+.radio{
+    
+    -fx-padding: 10px;
+    
+}
+
+.tallyInfo{
+    
+    -fx-font-family: 'Eraser';
+
+    -fx-text-fill: white;
+    
+    -fx-font-size: 3em;
+    
+}
+
+.gridpane{
+    
+    -fx-text-alignment: center;
+    
+    -fx-background-insets: 0.0 5.0 0.0 5.0;
+    
+    -fx-padding: 20px;
+    
+    -fx-spacing: 20px;
+    
+    -fx-hgap: 10px;
+    
+    -fx-vgap: 10px;
     
 }
